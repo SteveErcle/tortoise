@@ -334,6 +334,11 @@ classdef TurtleData
             
         end
         
+        function [hi, lo, cl, op, da, vo] = getOHLCDarray(obj, t)
+            hi = t(:,3); lo = t(:,4); cl = t(:,5); op = t(:,2); da = t(:,1); vo = t(:,6);
+        end
+        
+        
     end
     
 end
