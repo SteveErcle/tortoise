@@ -9,25 +9,26 @@ ta = TurtleAuto;
 
 % Heres how you pull intraday data 
 
-%Number between 1-79, see listOfStock.xlsx
-%Get multiple at once
 stockNum = [1,3,10,11];
+%Set stockNum to a between 1-79, see listOfStock.xlsx
+%You can get multiple at once
 
-%Number of days of intraday data, max is usally 50, if you over shoot it will just pull as much as it can
 lenOfData = '5d'
+%Number of days of intraday data, max is usally 50, if you over shoot it will just pull as much as it can
 
+durationOfCandle = '600' 
 %Each "candle" represents a high, low, open and close of a given time interval
 %I generally use 600 seconds (10 minutes) but you
 %can change that to whatever you want
-durationOfCandle = '600' 
 
+
+allData = td.pullData(stockNum, lenOfData, durationOfCandle);
 %This will pull all the intraday data for the chosen stockNum as well as
 %the S&P500. If the chosen stock data is not the same length as the S&P500
 %data it throws an exception. This can happen because Google Finance doesnt
 %always get all the data for every stock. I try to only use the stocks that
 %Google can provide all the data for. 
 
-allData = td.pullData(stockNum, lenOfData, durationOfCandle);
 
 disp('Here you will see some fail because the length is not equal to the SPY data')
 
@@ -78,8 +79,8 @@ stockNum = [4,5,20];
 fromDate = '01/05/2016';
 toDate   = '04/27/2016';
 
-as1 = ['A',num2str(1)];%1
-as2 = ['A',num2str(400)];%400
+as1 = ['A',num2str(1)];
+as2 = ['A',num2str(400)];
 [~,allStocks] = xlsread('listOfStocks', [as1, ':', as2]);
 allStocks = allStocks(stockNum);
 
@@ -87,19 +88,21 @@ allStocks = allStocks(stockNum);
 c = yahoo;
 
 for i = 1:length(allStocks)
+    
     stock = allStocks{i};
     
-  
     dAll.(stock) = fetch(c, stock, fromDate, toDate, 'd');
+    %Pull from yahoo
     [hi, lo, cl, op, da, vo] = td.getOHLCDarray(dAll.(stock));
+    %Organize data
     window_size = 12;
     ma.STOCK = tsmovavg(cl,'e',window_size,1);
+    %Calc 'e' expontial moving average, 's' for simple MA
     
     figure(i)
     hold on;
     candle(hi, lo, cl, op, 'blue');
     plot(ma.STOCK)
-    
     
 end
 
