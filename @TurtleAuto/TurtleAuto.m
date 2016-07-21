@@ -44,6 +44,7 @@ classdef TurtleAuto < handle
         levelPercent = 0.5;
         
         stand;
+        crossesFound;
         
     end
     
@@ -196,8 +197,6 @@ classdef TurtleAuto < handle
                 
                 
                 
-                
-                
                 if  obj.enterMarket.BULL || ((obj.cl.STOCK(obj.ind) - obj.clSma(obj.ind))/obj.clSma(obj.ind))*100 <= obj.levelPercent...
                         %&& obj.lo.STOCK(obj.ind) >= obj.clSma(obj.ind)
                     obj.condition.No_Cross_MA.BULL = 1;
@@ -213,20 +212,91 @@ classdef TurtleAuto < handle
                 end
                 
                 
-                %             if ~obj.enterMarket.BULL...
-                %                     && (obj.condition.Trying_to_Enter.BULL == 1) %&& obj.levelCheck.currentWithinMA.BULL)
-                %                 obj.condition.Allowed_to_Enter.BULL = 1;
-                %             else
-                %                 obj.condition.Allowed_to_Enter.BULL = 0;
-                %             end
-                %
-                %             if ~obj.enterMarket.BEAR...
-                %                     && (obj.condition.Trying_to_Enter.BEAR == 1) %&& obj.levelCheck.currentWithinMA.BEAR)
-                %                 obj.condition.Allowed_to_Enter.BEAR = 1;
-                %             else
-                %                 obj.condition.Allowed_to_Enter.BEAR = 0;
-                %             end
+                if ~obj.enterMarket.BULL
+                    obj.condition.Not_Gained_Out.BULL = 1;
+                else
+                    if obj.hi.STOCK(obj.ind) > obj.enterPrice.BULL*(1.00+obj.sgPercent/100)
+                        obj.condition.Not_Gained_Out.BULL = 0;
+                    else
+                        obj.condition.Not_Gained_Out.BULL = 1;
+                    end
+                end
                 
+                if ~obj.enterMarket.BEAR
+                    obj.condition.Not_Gained_Out.BEAR = 1;
+                else
+                    if obj.lo.STOCK(obj.ind) < obj.enterPrice.BEAR*(1.00-obj.sgPercent/100)
+                        obj.condition.Not_Gained_Out.BEAR = 0;
+                    else
+                        obj.condition.Not_Gained_Out.BEAR = 1;
+                    end
+                end
+                
+                if obj.enterMarket.BULL || obj.lo.STOCK(obj.ind) <= obj.clSma(obj.ind-1)*(1+obj.levelPercent/100)
+                    obj.condition.dip_MA.BULL = 1;
+                else
+                    obj.condition.dip_MA.BULL = 0;
+                end
+                
+                if obj.enterMarket.BEAR || obj.hi.STOCK(obj.ind) >= obj.clSma(obj.ind-1)*(1-obj.levelPercent/100)
+                    obj.condition.dip_MA.BEAR = 1;
+                else
+                    obj.condition.dip_MA.BEAR = 0;
+                end
+                
+                
+                if obj.enterMarket.BULL || obj.op.STOCK(obj.ind) > obj.clSma(obj.ind-1)*(1+0.7/100)
+                    obj.condition.open_MA.BULL = 1;
+                else
+                    obj.condition.open_MA.BULL = 0;
+                end
+                
+                if obj.enterMarket.BEAR || obj.op.STOCK(obj.ind) < obj.clSma(obj.ind-1)*(1-0.7/100)
+                    obj.condition.open_MA.BEAR = 1;
+                else
+                    obj.condition.open_MA.BEAR = 0;
+                end
+                
+                
+                if obj.enterMarket.BULL || obj.cl.STOCK(obj.ind-1) > obj.op.STOCK(obj.ind-1) && obj.cl.INDX(obj.ind-1) > obj.op.INDX(obj.ind-1)
+                    obj.condition.candle.BULL = 1;
+                else
+                    obj.condition.candle.BULL = 0;
+                end
+                
+                if obj.enterMarket.BULL || obj.cl.STOCK(obj.ind-1) < obj.op.STOCK(obj.ind-1) && obj.cl.INDX(obj.ind-1) < obj.op.INDX(obj.ind-1)
+                    obj.condition.candle.BEAR = 1;
+                else
+                    obj.condition.candle.BEAR = 0;
+                end
+                
+                
+                if obj.enterMarket.BULL...
+                        || (obj.levelCheck.checkMA.BULL && obj.levelCheck.withinMA.BULL)
+                    obj.condition.Within_Level.BULL = 1;
+                else
+                    obj.condition.Within_Level.BULL = 0;
+                end
+                
+                if obj.enterMarket.BEAR...
+                        || (obj.levelCheck.checkMA.BEAR && obj.levelCheck.withinMA.BEAR)
+                    obj.condition.Within_Level.BEAR = 1;
+                else
+                    obj.condition.Within_Level.BEAR = 0;
+                end
+                
+                
+                if obj.stand.rebound(obj.ind) > obj.stand.rebound_ma(obj.ind)
+                    obj.condition.rebound.BULL = 1;
+                else
+                    obj.condition.rebound.BULL = 0;
+                end
+                
+                if obj.stand.rebound(obj.ind) < obj.stand.rebound_ma(obj.ind)
+                    obj.condition.rebound.BEAR = 1;
+                else
+                    obj.condition.rebound.BEAR = 0;
+                end
                 
                 
             end
@@ -300,7 +370,6 @@ classdef TurtleAuto < handle
             end
             
             
-            
             if ~obj.enterMarket.BULL || ~obj.enterMarket.BEAR
                 if  obj.atr.STOCK(obj.ind-1) > 1.0*obj.atrAvg.STOCK(obj.ind-1) %&&  obj.atr.INDX(obj.ind-1) > 1.0*obj.atrAvg.INDX(obj.ind-1)
                     obj.condition.Large_ATR = 1;
@@ -313,71 +382,12 @@ classdef TurtleAuto < handle
             
             
             
-            if obj.enterMarket.BULL || obj.lo.STOCK(obj.ind) <= obj.clSma(obj.ind-1)*(1+obj.levelPercent/100)
-                obj.condition.dip_MA.BULL = 1;
+            if obj.crossesFound < 10
+                obj.condition.low_num_of_crosses = 1;
             else
-                obj.condition.dip_MA.BULL = 0;
-            end
-            
-            if obj.enterMarket.BEAR || obj.hi.STOCK(obj.ind) >= obj.clSma(obj.ind-1)*(1-obj.levelPercent/100)
-                obj.condition.dip_MA.BEAR = 1;
-            else
-                obj.condition.dip_MA.BEAR = 0;
-            end
-            
-            
-            if obj.enterMarket.BULL || obj.op.STOCK(obj.ind) > obj.clSma(obj.ind-1)*(1+0.7/100)
-                obj.condition.open_MA.BULL = 1;
-            else
-                obj.condition.open_MA.BULL = 0;
-            end
-            
-            if obj.enterMarket.BEAR || obj.op.STOCK(obj.ind) < obj.clSma(obj.ind-1)*(1-0.7/100)
-                obj.condition.open_MA.BEAR = 1;
-            else
-                obj.condition.open_MA.BEAR = 0;
-            end
-            
-            
-            if obj.enterMarket.BULL || obj.cl.STOCK(obj.ind-1) > obj.op.STOCK(obj.ind-1) && obj.cl.INDX(obj.ind-1) > obj.op.INDX(obj.ind-1)
-                obj.condition.candle.BULL = 1;
-            else
-                obj.condition.candle.BULL = 0;
-            end
-            
-            if obj.enterMarket.BULL || obj.cl.STOCK(obj.ind-1) < obj.op.STOCK(obj.ind-1) && obj.cl.INDX(obj.ind-1) < obj.op.INDX(obj.ind-1)
-                obj.condition.candle.BEAR = 1;
-            else
-                obj.condition.candle.BEAR = 0;
-            end
-            
-            
-            if obj.enterMarket.BULL...
-                    || (obj.levelCheck.checkMA.BULL && obj.levelCheck.withinMA.BULL)
-                obj.condition.Within_Level.BULL = 1;
-            else
-                obj.condition.Within_Level.BULL = 0;
-            end
-            
-            if obj.enterMarket.BEAR...
-                    || (obj.levelCheck.checkMA.BEAR && obj.levelCheck.withinMA.BEAR)
-                obj.condition.Within_Level.BEAR = 1;
-            else
-                obj.condition.Within_Level.BEAR = 0;
-            end
-            
-            
-            if obj.stand.rebound(obj.ind) > obj.stand.rebound_ma(obj.ind)
-                obj.condition.rebound.BULL = 1;
-            else
-                obj.condition.rebound.BULL = 0;
-            end
-            
-            if obj.stand.rebound(obj.ind) < obj.stand.rebound_ma(obj.ind)
-                obj.condition.rebound.BEAR = 1;
-            else
-                obj.condition.rebound.BEAR = 0;
-            end
+                obj.condition.low_num_of_crosses = 0;
+            end 
+                
             
             
             if strcmp(datestr(obj.da.INDX(obj.ind),15), '15:50')
@@ -386,25 +396,6 @@ classdef TurtleAuto < handle
                 obj.condition.Not_End_of_Day = 1;
             end
             
-            if ~obj.enterMarket.BULL
-                    obj.condition.Not_Gained_Out.BULL = 1;
-            else
-                if obj.hi.STOCK(obj.ind) > obj.enterPrice.BULL*(1.00+obj.sgPercent/100)
-                    obj.condition.Not_Gained_Out.BULL = 0;
-                else
-                    obj.condition.Not_Gained_Out.BULL = 1;
-                end
-            end
-            
-            if ~obj.enterMarket.BEAR
-                obj.condition.Not_Gained_Out.BEAR = 1;
-            else
-                if obj.lo.STOCK(obj.ind) < obj.enterPrice.BEAR*(1.00-obj.sgPercent/100)
-                    obj.condition.Not_Gained_Out.BEAR = 0;
-                else
-                    obj.condition.Not_Gained_Out.BEAR = 1;
-                end
-            end
             
         end
         
@@ -454,6 +445,8 @@ classdef TurtleAuto < handle
             
             obj.stand.rebound = obj.stand.STOCK - obj.stand.INDX;
             obj.stand.rebound_ma = tsmovavg(obj.stand.rebound,'e',9,1);
+            
+            obj.crossesFound = obj.tAnalyze.getNumCrosses(obj.cl.STOCK, obj.clSma, obj.ind, 50);
             
         end
         
@@ -508,6 +501,8 @@ classdef TurtleAuto < handle
                     && obj.condition.Large_Volume...
                     && obj.condition.Above_MA.BULL...
                     && obj.condition.Above_MA_prev.BULL...
+                    && obj.condition.low_num_of_crosses
+                    %&& obj.condition.Large_ATR...
 %                     && obj.condition.Not_Gained_Out.BULL...
             
 %             if obj.condition.Not_Stopped_Out.BEAR...
@@ -515,17 +510,12 @@ classdef TurtleAuto < handle
 %                     && obj.condition.Large_Volume...
 %                     && obj.condition.Below_MA.BEAR...
 %                     && obj.condition.Below_MA_prev.BEAR...
-                    
-                
-                
                 
                 %obj.condition.rebound.BULL...
                 %&& obj.condition.dip_MA.BULL...
                 %&& obj.condition.open_MA.BULL...
                 %&& obj.condition.candle.BULL...
-                %&& obj.condition.Large_ATR...
                 %&& obj.condition.Within_Level.BULL...
-                
                 %&& obj.condition.No_Cross_MA.BULL...
                 %&& obj.condition.MACD_bull_cross...
                 %&& obj.condition.MACD_bull_derv...
@@ -593,6 +583,9 @@ classdef TurtleAuto < handle
                     && obj.condition.Large_Volume...
                     && obj.condition.Below_MA.BEAR...
                     && obj.condition.Below_MA_prev.BEAR...
+                    && obj.condition.low_num_of_crosses
+                     %&& obj.condition.Large_ATR...
+                    
 %                     && obj.condition.Not_Gained_Out.BEAR...
             
             
@@ -607,7 +600,7 @@ classdef TurtleAuto < handle
                 %                     && obj.condition.dip_MA.BEAR...
                 %                     && obj.condition.open_MA.BEAR...
                 %                     && obj.condition.candle.BEAR...
-                %&& obj.condition.Large_ATR...
+               
                 %&& obj.condition.Within_Level.BEAR...
                 
                 

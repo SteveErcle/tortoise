@@ -307,16 +307,16 @@ classdef TurtleData
                     try
                         temp = IntraDayStockData(stock,exchange, candleLen,lenOfData);
                         
-                        %         for i_d = 1:length(iAll.INDX.date)
-                        %             if iAll.STOCK.date(i_d) ~= iAll.INDX.date(i_d)
-                        %                 iAll.STOCK.close = [iAll.STOCK.close(1:i_d-1); NaN; iAll.STOCK.close(i_d:end)];
-                        %                 iAll.STOCK.high = [iAll.STOCK.high(1:i_d-1); NaN; iAll.STOCK.high(i_d:end)];
-                        %                 iAll.STOCK.low = [iAll.STOCK.low(1:i_d-1); NaN; iAll.STOCK.low(i_d:end)];
-                        %                 iAll.STOCK.volume = [iAll.STOCK.volume(1:i_d-1); NaN; iAll.STOCK.volume(i_d:end)];
-                        %                 iAll.STOCK.datestring = [iAll.STOCK.datestring(1:i_d-1); NaN; iAll.STOCK.datestring(i_d:end)];
-                        %                 iAll.STOCK.date = [iAll.STOCK.date(1:i_d-1); NaN; iAll.STOCK.date(i_d:end)];
-                        %             end
-                        %         end
+%                         for i_d = 1:length(allData.SPY.date)
+%                             if temp.date(i_d) ~= allData.SPY.date(i_d)
+%                                 temp.close = [temp.close(1:i_d-1); NaN; temp.close(i_d:end)];
+%                                 temp.high = [temp.high(1:i_d-1); NaN; temp.high(i_d:end)];
+%                                 temp.low = [temp.low(1:i_d-1); NaN; temp.low(i_d:end)];
+%                                 temp.volume = [temp.volume(1:i_d-1); NaN; temp.volume(i_d:end)];
+%                                 temp.datestring = [temp.datestring(1:i_d-1); NaN; temp.datestring(i_d:end)];
+%                                 temp.date = [temp.date(1:i_d-1); NaN; temp.date(i_d:end)];
+%                             end
+%                         end
                         
                         temp = obj.getAdjustedIntra(temp);
                         

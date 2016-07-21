@@ -257,7 +257,50 @@ classdef TurtleAnalyzer < handle
             
         end
         
-        
+        function crossesFound = getNumCrosses(obj, cl, ma, ind, numBack)
+            
+            above = [];
+            below = [];
+            for i = ind-numBack+1:ind
+                if cl(i) > ma(i)
+                    above = [above; i];
+                else
+                    below = [below; i];
+                end
+            end
+            
+            
+            B = [nan; diff(below)];
+            if ~isempty(below)
+                y = below(find( B ~= 1 ));
+%                 y(1) = [];
+            else
+                y = [];
+            end
+            
+            
+            B = [nan; diff(above)];
+            if ~isempty(above)
+                x = above(find( B ~= 1 ));
+%                 x(1) = [];
+            else
+                x = [];
+            end
+            
+            
+            
+            z = sortrows([x;y]);
+
+
+            crossesFound = 0;
+            for i = ind-numBack+1:ind
+                if ~isempty(find(z == i))
+                    crossesFound = crossesFound + 1;
+                end
+            end
+            
+            
+        end 
         
     end
     

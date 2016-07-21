@@ -60,7 +60,7 @@ for i = 1:length(fields)
     subplot(2,1,2)
     hold on
     candle(ta.hi.INDX, ta.lo.INDX, ta.cl.INDX, ta.op.INDX, 'red');
-    plot(ma.INDX)
+    plot(ma.INDX, 'r')
     title('S&P500 Candles')
     
 
