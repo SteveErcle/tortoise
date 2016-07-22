@@ -37,7 +37,7 @@ allStocks = {'FX'};
 % allStocks = fieldnames(allData); allStocks = allStocks(2:end);
 % stock = allStocks{1};
 
-len = 500%size(allData.SPY.close,1)-1;
+len = 200%size(allData.SPY.close,1)-1;
 ta.ind = 50-1;
 
 % ta.organizeDataGoog(allData.(stock), allData.SPY, 1:length(allData.SPY.close));
@@ -168,9 +168,9 @@ disp([sL, sS, size(ta.trades.BULL,1) + size(ta.trades.BEAR,1)])
 disp([(sL + sS) / (size(ta.trades.BULL,1) + size(ta.trades.BEAR,1))])
 
 principal = 20000;
-principal = principal*(1+(sL+sS)/10); %- (size(ta.trades.BULL,1) + size(ta.trades.BEAR,1))*20;
+principal = principal*(1+(sL+sS)/100) %- (size(ta.trades.BULL,1) + size(ta.trades.BEAR,1))*20;
 
-sprintf('%0.2f',principal)
+sprintf(0.2%(principal)
 
 if VIEW == 0
     return
