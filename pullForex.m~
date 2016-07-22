@@ -5,7 +5,7 @@ end
 
 clc; close all; clear all;
 
-filename = 'EURUSD_APRIL'
+filename = 'EURUSD_MA'
 data = csvread(strcat(filename,'.csv'), 0,2);
 
 op = data(:,1);

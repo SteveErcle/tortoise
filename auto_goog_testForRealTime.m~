@@ -4,13 +4,11 @@ clc; close all; clear all;
 
 WATCH = 0;
 VIEW  = 1;
-PULL  = 1;
-stockNum = [36]
+PULL  = 0;
+stockNum = [33]
 
 delete(watchConditions);
 handles = guihandles(watchConditions);
-
-% data_from_file = 'EURUSD_APRIL';
 
 ta = TurtleAuto;
 td = TurtleData;
@@ -31,10 +29,10 @@ else
     load(data_from_file);
 end
 
-% allData.FX = tenlyFX;
-% allData.SPY = tenlyFX;
-% allStocks = {'FX'};
-allStocks = fieldnames(allData); allStocks = allStocks(2:end);
+allData.FX = tenlyFX;
+allData.SPY = tenlyFX;
+allStocks = {'FX'};
+% allStocks = fieldnames(allData); allStocks = allStocks(2:end);
 stock = allStocks{1};
 % allData.SPY = allData.(stock)
 
@@ -174,7 +172,7 @@ roiAll = sortrows([roiLong;roiShort] , 2);
 
 principal = 20000;
 for i = 1:size(roiAll,1)-1
-    principal = principal*(1+roiAll(i,1)/100) - 20;
+    principal = principal*(1+roiAll(i,1)/25); % - 20;
 
 end 
 
