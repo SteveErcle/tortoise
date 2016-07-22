@@ -5,7 +5,7 @@ clc; close all; clear all;
 WATCH = 0;
 VIEW  = 1;
 PULL  = 0;
-stockNum = [22]
+stockNum = [33]
 
 delete(watchConditions);
 handles = guihandles(watchConditions);
@@ -20,28 +20,28 @@ ta.sgPercent = 0.50;
 ta.levelPercent = 0.0;
 
 numPlots = 6;
-lenOfData = '15d'
+lenOfData = '50d'
 durationOfCandle = '600';
 
 if PULL == 1
     allData = td.pullData(stockNum, lenOfData, durationOfCandle);
 else
 %     load('allData')
+    load('tenlyFX')
 end
-
-load('tenlyFX')
 
 allData.FX = tenlyFX;
 allData.SPY = tenlyFX;
 allStocks = {'FX'};
 % allStocks = fieldnames(allData); allStocks = allStocks(2:end);
-% stock = allStocks{1};
+stock = allStocks{1};
+% allData.SPY = allData.(stock)
 
-len = 500%size(allData.SPY.close,1)-1;
+len = size(allData.SPY.close,1)-1;
 ta.ind = 50-1;
 
-% ta.organizeDataGoog(allData.(stock), allData.SPY, 1:length(allData.SPY.close));
-% ta.calculateData(0);
+ta.organizeDataGoog(allData.(stock), allData.SPY, 1:length(allData.SPY.close));
+ta.calculateData(0);
 
 while ta.ind <= len
     
@@ -62,7 +62,7 @@ while ta.ind <= len
         ta.organizeDataGoog(allData.(stock), allData.SPY, range);
         
         ta.setStock(stock);
-        ta.calculateData(0);
+%         ta.calculateData(0);
         ta.setStopLoss(stopType);
         ta.checkConditionsUsingInd();
         ta.executeBullTrade();
@@ -150,6 +150,7 @@ end
 try
     roiLong = (ta.trades.BULL(:,2) - ta.trades.BULL(:,1)) ./ ta.trades.BULL(:,1) * 100;
     sL = sum(roiLong(~isnan(roiLong)));
+    roiLong = [roiLong, ta.trades.BULL(:,3)];
 catch
     roiLong = 0;
     sL = 0;
@@ -158,6 +159,7 @@ end
 try
     roiShort = (ta.trades.BEAR(:,1) - ta.trades.BEAR(:,2)) ./ ta.trades.BEAR(:,1) * 100;
     sS = sum(roiShort(~isnan(roiShort)));
+    roiShort = [roiShort, ta.trades.BEAR(:,3)];
 catch
     roiShort = 0;
     sS = 0;
@@ -167,8 +169,13 @@ disp([sL, sS, size(ta.trades.BULL,1) + size(ta.trades.BEAR,1)])
 
 disp([(sL + sS) / (size(ta.trades.BULL,1) + size(ta.trades.BEAR,1))])
 
-principal = 20000;
-principal = principal*(1+(sL+sS)/10); %- (size(ta.trades.BULL,1) + size(ta.trades.BEAR,1))*20;
+roiAll = sortrows([roiLong;roiShort] , 2);
+
+principal = 30000;
+for i = 1:size(roiAll,1)-1
+    principal = principal*(1+roiAll(i,1)/20); % - 20;
+
+end 
 
 sprintf('%0.2f',principal)
 
@@ -293,7 +300,7 @@ for j = 2:numPlots
         xLong = [xLo xHi xHi xLo];
         yLong = [yLo yLo yHi yHi];
         
-        if roiShort(i) < 0
+        if roiShort(i,1) < 0
             color = [1, .7, .7];
         else
             color = [0.7, 1, .7];
@@ -315,7 +322,7 @@ for j = 2:numPlots
         xLong = [xLo xHi xHi xLo];
         yLong = [yLo yLo yHi yHi];
         
-        if roiLong(i) < 0
+        if roiLong(i,1) < 0
             color = [1, .7, .7];
         else
             color = [0.7, 1, .7];

@@ -258,19 +258,6 @@ classdef TurtleAuto < handle
                 end
                 
                 
-                if obj.enterMarket.BULL || obj.cl.STOCK(obj.ind-1) > obj.op.STOCK(obj.ind-1) && obj.cl.INDX(obj.ind-1) > obj.op.INDX(obj.ind-1)
-                    obj.condition.candle.BULL = 1;
-                else
-                    obj.condition.candle.BULL = 0;
-                end
-                
-                if obj.enterMarket.BULL || obj.cl.STOCK(obj.ind-1) < obj.op.STOCK(obj.ind-1) && obj.cl.INDX(obj.ind-1) < obj.op.INDX(obj.ind-1)
-                    obj.condition.candle.BEAR = 1;
-                else
-                    obj.condition.candle.BEAR = 0;
-                end
-                
-                
                 if obj.enterMarket.BULL...
                         || (obj.levelCheck.checkMA.BULL && obj.levelCheck.withinMA.BULL)
                     obj.condition.Within_Level.BULL = 1;
@@ -382,7 +369,7 @@ classdef TurtleAuto < handle
             
             
             
-            if obj.crossesFound < 7
+            if obj.crossesFound <= 6
                 obj.condition.low_num_of_crosses = 1;
             else
                 obj.condition.low_num_of_crosses = 0;
@@ -396,6 +383,22 @@ classdef TurtleAuto < handle
                 obj.condition.Not_End_of_Day = 1;
             end
             
+            
+            if obj.enterMarket.BULL || obj.cl.STOCK(obj.ind-1) > obj.op.STOCK(obj.ind-1)... %&& obj.cl.INDX(obj.ind-1) > obj.op.INDX(obj.ind-1)
+                    && obj.cl.STOCK(obj.ind-2) > obj.op.STOCK(obj.ind-2)...
+                    && obj.cl.STOCK(obj.ind-3) > obj.op.STOCK(obj.ind-3)
+                    obj.condition.candle.BULL = 1;
+            else
+                obj.condition.candle.BULL = 0;
+            end
+            
+            if obj.enterMarket.BULL || obj.cl.STOCK(obj.ind-1) < obj.op.STOCK(obj.ind-1)... %&& obj.cl.INDX(obj.ind-1) < obj.op.INDX(obj.ind-1)
+                    && obj.cl.STOCK(obj.ind-2) < obj.op.STOCK(obj.ind-2)...
+                    && obj.cl.STOCK(obj.ind-3) < obj.op.STOCK(obj.ind-3)
+                    obj.condition.candle.BEAR = 1;
+            else
+                obj.condition.candle.BEAR = 0;
+            end
             
         end
         
@@ -446,7 +449,7 @@ classdef TurtleAuto < handle
             obj.stand.rebound = obj.stand.STOCK - obj.stand.INDX;
             obj.stand.rebound_ma = tsmovavg(obj.stand.rebound,'e',9,1);
             
-            obj.crossesFound = obj.tAnalyze.getNumCrosses(obj.cl.STOCK, obj.clSma, obj.ind, 50);
+            obj.crossesFound = obj.tAnalyze.getNumCrosses(obj.cl.STOCK, obj.clSma, obj.ind, 12);
             
         end
         
@@ -499,9 +502,10 @@ classdef TurtleAuto < handle
             if obj.condition.Not_Stopped_Out.BULL...
                     && obj.condition.Above_MA.BULL...
                     && obj.condition.Above_MA_prev.BULL...
-                    && obj.condition.low_num_of_crosses
-                    %&& obj.condition.Not_End_of_Day...
-                    %&& obj.condition.Large_Volume...
+                    && obj.condition.candle.BULL...
+%                     && obj.condition.Not_End_of_Day...
+%                     && obj.condition.Large_Volume...
+                   % && obj.condition.low_num_of_crosses...
                     
                     
                     %&& obj.condition.Large_ATR...
@@ -583,10 +587,12 @@ classdef TurtleAuto < handle
             if obj.condition.Not_Stopped_Out.BEAR...
                     && obj.condition.Below_MA.BEAR...
                     && obj.condition.Below_MA_prev.BEAR...
-                    && obj.condition.low_num_of_crosses
+                    && obj.condition.candle.BEAR...
                     %&& obj.condition.Not_End_of_Day...
                     %&& obj.condition.Large_Volume...
-           
+                    
+                    %&& obj.condition.low_num_of_crosses...
+                
                      %&& obj.condition.Large_ATR...
                     
 %                     && obj.condition.Not_Gained_Out.BEAR...
