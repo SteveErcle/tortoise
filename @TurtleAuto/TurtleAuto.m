@@ -44,7 +44,7 @@ classdef TurtleAuto < handle
         levelPercent = 0.5;
         
         stand;
-        crossesFound;
+        crossesFound; inte;
         
     end
     
@@ -369,7 +369,7 @@ classdef TurtleAuto < handle
             
             
             
-            if obj.crossesFound <= 6
+            if obj.crossesFound(obj.ind) < 0;
                 obj.condition.low_num_of_crosses = 1;
             else
                 obj.condition.low_num_of_crosses = 0;
@@ -449,7 +449,7 @@ classdef TurtleAuto < handle
             obj.stand.rebound = obj.stand.STOCK - obj.stand.INDX;
             obj.stand.rebound_ma = tsmovavg(obj.stand.rebound,'e',9,1);
             
-            obj.crossesFound = obj.tAnalyze.getNumCrosses(obj.cl.STOCK, obj.clSma, obj.ind, 12);
+            [obj.crossesFound, obj.inte] = obj.tAnalyze.getNumCrosses(obj.cl.STOCK, obj.clSma, 12);
             
         end
         
@@ -505,7 +505,7 @@ classdef TurtleAuto < handle
                     && obj.condition.candle.BULL...
                     && obj.condition.Not_End_of_Day...
                     && obj.condition.Large_Volume...
-                   % && obj.condition.low_num_of_crosses...
+                    && obj.condition.low_num_of_crosses...
                     
                     
                     %&& obj.condition.Large_ATR...
@@ -590,8 +590,7 @@ classdef TurtleAuto < handle
                     && obj.condition.candle.BEAR...
                     && obj.condition.Not_End_of_Day...
                     && obj.condition.Large_Volume...
-                    
-                    %&& obj.condition.low_num_of_crosses...
+                    && obj.condition.low_num_of_crosses...
                 
                      %&& obj.condition.Large_ATR...
                     

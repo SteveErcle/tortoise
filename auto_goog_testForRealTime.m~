@@ -11,11 +11,11 @@ handles = guihandles(watchConditions);
 tAnalyzer = TurtleAnalyzer;
 
 WATCH = 0;
-VIEW  = 1;
+VIEW  = 0;
 PULL  = 1;
 
 stocki = [1,25:36];
-stocki = 23:40;
+stocki = 21:40;
 
 roiStock = [];
 perStockRoiAll = [];
@@ -92,8 +92,6 @@ for i = stocki
                 
             end
             
-          
-            
         end
         
         
@@ -168,7 +166,6 @@ x(1) = []; y(1) = [];
 
 z = sortrows([x;y]);
 
-
 % plot(ta.cl.STOCK)
 % hold on
 % plot(ta.clSma,'r')
@@ -177,7 +174,7 @@ z = sortrows([x;y]);
 
 length(z)
 
-numBack = 12;
+numBack = 50;
 
 backer = nan(numBack-1,2);
 for ind = numBack:length(ta.cl.STOCK)
@@ -190,10 +187,6 @@ for ind = numBack:length(ta.cl.STOCK)
     backer = [backer; ind, numFound];
     
 end
-
-backer(isnan(backer(:,2)),2) = 0;
-backerMA = tsmovavg(backer(:,2),'e',12,1);
-BbackerMA = [nan; diff(backerMA)];
 
 
 delete(slider);
@@ -239,15 +232,12 @@ plot(xlim, [mean(ta.vo.INDX), mean(ta.vo.INDX)])
 subplot(numPlots,1,6)
 cla
 bar(backer(:,1), backer(:,2))
-hold on
-plot(backerMA, 'r')
-plot(BbackerMA*10, 'c')
 
 subplot(numPlots,1,7)
 cla
 bar(roiAll(:,2), roiAll(:,1), 'b')% 'Marker', '.');
 title('Trade')
-
+hold on
 
 
 for j = 2:numPlots
