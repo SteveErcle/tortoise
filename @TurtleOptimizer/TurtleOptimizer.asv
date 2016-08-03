@@ -1,0 +1,33 @@
+classdef TurtleOptimizer < handle
+    
+    
+    properties
+        
+    end
+    
+    methods
+        
+        function x = solve(obj, opt,nvars,lb,ub)
+            
+            x = particleswarm(opt,nvars,lb,ub);
+            
+        end
+        
+        function genWave(amplitudes, periods, phases)
+            
+            A = amplitudes;
+            P = periods;
+            
+            
+            
+        end
+        
+        
+        
+        
+    end
+    
+    
+    
+end
+

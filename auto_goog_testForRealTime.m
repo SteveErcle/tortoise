@@ -6,16 +6,16 @@ clc; close all; clear all;
 delete(watchConditions);
 handles = guihandles(watchConditions);
 
-% data_from_file = 'EURUSD_APRIL';
+data_from_file = 'EURUSD_APRIL';
 
 tAnalyzer = TurtleAnalyzer;
 
 WATCH = 0;
 VIEW  = 1;
-PULL  = 1;
+PULL  = 0;
 
 stocki = [1,25:36];
-stocki = 23:40;
+stocki = 1
 
 roiStock = [];
 perStockRoiAll = [];
@@ -46,9 +46,9 @@ for i = stocki
         end
         
         
-        % allData.FX = tenlyFX;
-        % allData.SPY = tenlyFX;
-        % allStocks = {'FX'};
+        allData.FX = tenlyFX;
+        allData.SPY = tenlyFX;
+        allStocks = {'FX'};
         allStocks = fieldnames(allData); allStocks = allStocks(2:end);
         stock = allStocks{1};
         
