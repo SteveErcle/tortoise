@@ -59,18 +59,17 @@ Bma = [nan; diff(ma.STOCK(12:1999))];
 ByBin  = By  > 0;
 BmaBin = Bma > 0;
 Bside = ByBin == BmaBin;
-BsideUpper = ByBin(find(Bside) > 0);
-upper = find(ByBin(find(Bside)) > 0);
+
 
 setterUpper = [];
-x = BsideUpper;
-z = find(x == 1);
+x = Bside;
+z = find(x ~= 1);
 setterUpper = [];
 for i = 1:length(z)-1
-    setterUpper = [setterUpper; z(i), z(i+1)-1+1];
+    setterUpper = [setterUpper; upper(z(i)), upper(z(i+1)-1)+1];
 end 
 
-return
+
 
 t = 12:300;
 y = to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK));
