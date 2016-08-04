@@ -12,10 +12,10 @@ tAnalyzer = TurtleAnalyzer;
 
 WATCH = 0;
 VIEW  = 1;
-PULL  = 0;
+PULL  = 1;
 
 stocki = [1,25:36];
-stocki = 1
+stocki = 11
 
 roiStock = [];
 perStockRoiAll = [];
@@ -29,8 +29,8 @@ for i = stocki
         td = TurtleData;
         
         stopType = 'follow';
-        %     ta.slPercentFirst = nan;%0.75;
-        %     ta.slPercentSecond = nan;%0.25;
+            ta.slPercentFirst = nan;%0.75;
+            ta.slPercentSecond = nan;%0.25;
         ta.sgPercent = 0.50;
         ta.levelPercent = 0.0;
         
@@ -46,9 +46,9 @@ for i = stocki
         end
         
         
-        allData.FX = tenlyFX;
-        allData.SPY = tenlyFX;
-        allStocks = {'FX'};
+%         allData.FX = tenlyFX;
+%         allData.SPY = tenlyFX;
+%         allStocks = {'FX'};
         allStocks = fieldnames(allData); allStocks = allStocks(2:end);
         stock = allStocks{1};
         

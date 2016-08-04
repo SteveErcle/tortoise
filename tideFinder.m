@@ -10,7 +10,6 @@ durationOfCandle = '600';
 
 allData = td.pullData(stockNum, lenOfData, durationOfCandle);
 
-
 fields = fieldnames(allData);
 range = 1:length(allData.SPY.close);
 
@@ -54,39 +53,105 @@ y = to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK));
 plot(t,y,'k')
 
 
-By  = [nan; diff(y)];
-Bma = [nan; diff(ma.STOCK(12:1999))];
-ByBin  = By  > 0;
-BmaBin = Bma > 0;
-Bside = ByBin == BmaBin;
-BsideUpper = ByBin(find(Bside) > 0);
-upper = find(ByBin(find(Bside)) > 0);
+% By  = [nan; diff(y)];
+% Bma = [nan; diff(ma.STOCK(12:1999))];
+% ByBin  = By  > 0;
+% BmaBin = Bma > 0;
+% Bside = ByBin == BmaBin;
+% BsideUpper = ByBin(find(Bside) > 0);
+% upper = find(ByBin(find(Bside)) > 0);
 
-setterUpper = [];
-x = BsideUpper;
-z = find(x == 1);
-setterUpper = [];
-for i = 1:length(z)-1
-    setterUpper = [setterUpper; z(i), z(i+1)-1+1];
-end 
+% setterUpper = [];
+% x = BsideUpper;
+% z = find(x == 1);
+% setterUpper = [];
+% for i = 1:length(z)-1
+%     setterUpper = [setterUpper; z(i), z(i+1)-1+1];
+% end
 
-return
 
 t = 12:300;
 y = to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK));
 plot(t,y,'c')
 
-for i = 1:length(Bside)
-    if Bside(i) == 1
-        if ByBin(i) > 0
-            color = 'gx';
-        else
-            color = 'rx';
-        end
-        
-        plot(i+12, ta.cl.STOCK(i+12), color)
-        
-    end
+Bma = [nan; diff(ma.STOCK(12:1999))];
+Bma = [nan(11,1); Bma];
+
+BmaPos = [nan; diff(Bma > 0)];
+oner    = find(BmaPos == 1);
+negOner = find(BmaPos == -1);
+allPos = [oner, negOner+1];
+
+BmaNeg = [nan; diff(Bma <= 0)];
+oner    = find(BmaNeg == 1);
+negOner = find(BmaNeg == -1);
+oner(end) = [];
+allNeg = [oner, negOner+1];
+
+
+% roiLong = (ta.cl.STOCK(all(:,2)) - ta.cl.STOCK(all(:,1))) ./ ta.cl.STOCK(all(:,2) * 100;
+           
+tz = TurtleAnalyzer;
+
+roiPos = tz.percentDifference(ta.cl.STOCK(allPos(:,1)), ta.cl.STOCK(allPos(:,2)));
+sum(roiPos)
+
+roiNeg = -tz.percentDifference(ta.cl.STOCK(allNeg(:,1)), ta.cl.STOCK(allNeg(:,2)));
+sum(roiNeg)
+
+
+delete(slider);
+handles = guihandles(slider);
+
+len = length(ta.cl.INDX);
+set(handles.axisView, 'Max', len, 'Min', 0);
+set(handles.axisView, 'SliderStep', [1/len, 10/len]);
+set(handles.axisView, 'Value', 0);
+set(handles.axisLen, 'Max', len, 'Min', 20);
+set(handles.axisLen, 'SliderStep', [1/len, 10/len]);
+set(handles.axisLen, 'Value', 100);
+
+yLimits = ylim(gca);
+yLo = yLimits(1);
+yHi = yLimits(2);
+
+for i = 1:length(allPos)
+    
+    xLo = allPos(i,1)
+    xHi = allPos(i,2)
+    
+    x = [xLo xHi xHi xLo];
+    y = [yLo yLo yHi yHi];
+    
+    color = [0.7, 1, .7];
+    
+    hp = patch(x,y, color, 'FaceAlpha', 0.25);
+    
+end
+
+for i = 1:length(allNeg)
+    
+    xLo = allNeg(i,1)
+    xHi = allNeg(i,2)
+    
+    x = [xLo xHi xHi xLo];
+    y = [yLo yLo yHi yHi];
+    
+    color = [1, .7, .7];
+    
+    hp = patch(x,y, color, 'FaceAlpha', 0.25);
+    
+end
+
+while(true)
+    
+    axisView = get(handles.axisView, 'Value');
+    axisLen  = get(handles.axisLen, 'Value');
+    xlim(gca, [0+axisView, axisLen+axisView]);
+%     xlimit
+%     ylim(min(ta.hi.stock(
+    
+    pause(10/100);
 end
 
 

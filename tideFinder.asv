@@ -10,7 +10,6 @@ durationOfCandle = '600';
 
 allData = td.pullData(stockNum, lenOfData, durationOfCandle);
 
-
 fields = fieldnames(allData);
 range = 1:length(allData.SPY.close);
 
@@ -54,39 +53,100 @@ y = to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK));
 plot(t,y,'k')
 
 
-By  = [nan; diff(y)];
-Bma = [nan; diff(ma.STOCK(12:1999))];
-ByBin  = By  > 0;
-BmaBin = Bma > 0;
-Bside = ByBin == BmaBin;
+% By  = [nan; diff(y)];
+% Bma = [nan; diff(ma.STOCK(12:1999))];
+% ByBin  = By  > 0;
+% BmaBin = Bma > 0;
+% Bside = ByBin == BmaBin;
+% BsideUpper = ByBin(find(Bside) > 0);
+% upper = find(ByBin(find(Bside)) > 0);
 
-
-setterUpper = [];
-x = Bside;
-z = find(x ~= 1);
-setterUpper = [];
-for i = 1:length(z)-1
-    setterUpper = [setterUpper; upper(z(i)), upper(z(i+1)-1)+1];
-end 
-
+% setterUpper = [];
+% x = BsideUpper;
+% z = find(x == 1);
+% setterUpper = [];
+% for i = 1:length(z)-1
+%     setterUpper = [setterUpper; z(i), z(i+1)-1+1];
+% end
 
 
 t = 12:300;
 y = to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK));
 plot(t,y,'c')
 
-for i = 1:length(Bside)
-    if Bside(i) == 1
-        if ByBin(i) > 0
-            color = 'gx';
-        else
-            color = 'rx';
-        end
-        
-        plot(i+12, ta.cl.STOCK(i+12), color)
-        
-    end
+Bma = [nan; diff(ma.STOCK(12:1999))];
+Bma = [nan(11,1); Bma];
+
+BmaPos = [nan; diff(Bma > 0)];
+oner    = find(BmaPos == 1);
+negOner = find(BmaPos == -1);
+allPos = [oner, negOner];
+
+BmaNeg = [nan; diff(Bma <= 0)];
+oner    = find(BmaNeg == 1);
+negOner = find(BmaNeg == -1);
+negOner = [negOner;nan];
+allNeg = [oner, negOner];
+
+
+yLimits = ylim(gca);
+yLo = yLimits(1);
+yHi = yLimits(2);
+
+% roiLong = (ta.cl.STOCK(all(:,2)) - ta.cl.STOCK(all(:,1))) ./ ta.cl.STOCK(all(:,2) * 100;
+           
+tz = TurtleAnalyzer;
+
+roiPos = tz.percentDifference(ta.cl.STOCK(allPos(:,1)), ta.cl.STOCK(allPos(:,2)));
+
+
+for i = 1:length(allPos)
+    
+    xLo = allPos(i,1)
+    xHi = allPos(i,2)
+    
+    x = [xLo xHi xHi xLo];
+    y = [yLo yLo yHi yHi];
+    
+   
+%     color = [1, .7, .7];
+    color = [0.7, 1, .7];
+    
+    hp = patch(x,y, color, 'FaceAlpha', 0.25);
+    
 end
+
+return
+for i = 1:length(allPos)-1
+    
+    color = 'gx';
+    
+    plot([allPos(i,1) : allPos(i,2)], ta.cl.STOCK(allPos(i,1) : allPos(i,2)), color)
+    
+end
+
+
+for i = 1:length(allNeg)-1
+    
+    color = 'rx';
+    
+    plot([allNeg(i,1) : allNeg(i,2)], ta.cl.STOCK(allNeg(i,1) : allNeg(i,2)), color)
+    
+end
+
+
+% for i = 1:length(Bside)-1
+%     if BmaBin(i) == 1
+%         if BmaBin(i) > 0
+%             color = 'gx';
+%         else
+%             color = 'rx';
+%         end
+%
+%         plot(i+12, ta.cl.STOCK(i+12), color)
+%
+%     end
+% end
 
 
 
