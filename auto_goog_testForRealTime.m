@@ -29,10 +29,8 @@ for i = stocki
         td = TurtleData;
         
         stopType = 'follow';
-        ta.slPercentFirst = 0.75;
-        ta.slPercentSecond = 0.25;
-        ta.sgPercent = 0.50;
-        ta.levelPercent = 0.0;
+%         ta.slPercentFirst = nan;%0.75;
+%         ta.slPercentSecond = nan;%0.25;
         
         numPlots = 7;
         lenOfData = '50d'
@@ -49,10 +47,10 @@ for i = stocki
 %         allData.FX = tenlyFX;
 %         allData.SPY = tenlyFX;
 %         allStocks = {'FX'};
+%         allData.SPY = allData.(stock);
         allStocks = fieldnames(allData); allStocks = allStocks(2:end);
         stock = allStocks{1};
-        
-        % allData.SPY = allData.(stock)
+
         
         len = size(allData.SPY.close,1)-1;
         ta.ind = 50-1;
