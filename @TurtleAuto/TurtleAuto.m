@@ -9,7 +9,7 @@ classdef TurtleAuto < handle
         nineperma;
         RSIderv
         
-        B;
+        B; Bma;
         
         upper;
         
@@ -401,13 +401,13 @@ classdef TurtleAuto < handle
             end
             
             
-            if obj.B.STOCK(obj.ind) > max(obj.B.STOCK)*0.3;
+            if obj.Bma(obj.ind) > 0%max(obj.B.STOCK)*0.3;
                 obj.condition.ma_derv.BULL = 1;
             else
                 obj.condition.ma_derv.BULL = 0;
             end
             
-            if obj.B.STOCK(obj.ind) < min(obj.B.STOCK)*0.3;
+            if obj.Bma(obj.ind) < 0%min(obj.B.STOCK)*0.3;
                 obj.condition.ma_derv.BEAR = 1;
             else
                 obj.condition.ma_derv.BEAR = 0;
@@ -428,6 +428,8 @@ classdef TurtleAuto < handle
             
             obj.B.STOCK = [NaN; diff(obj.macdvec.STOCK)];
             obj.B.INDX  = [NaN; diff(obj.macdvec.INDX)];
+            
+            obj.Bma = [nan; diff(obj.clSma)];
             
             obj.rsi.STOCK = rsindex(obj.cl.STOCK);
             

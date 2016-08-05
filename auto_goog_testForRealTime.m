@@ -29,8 +29,8 @@ for i = stocki
         td = TurtleData;
         
         stopType = 'follow';
-%         ta.slPercentFirst = nan;%0.75;
-%         ta.slPercentSecond = nan;%0.25;
+        ta.slPercentFirst = nan;%0.75;
+        ta.slPercentSecond = nan;%0.25;
         
         numPlots = 7;
         lenOfData = '50d'
