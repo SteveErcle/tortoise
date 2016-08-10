@@ -3,8 +3,8 @@ clc; close all; clear all;
 td = TurtleData;
 ta = TurtleAuto;
 
-stockNum = [31];
-lenOfData = '10d';
+stockNum = [25];
+lenOfData = '20d';
 durationOfCandle = '600';
 
 
@@ -17,13 +17,14 @@ stock = fields{2};
 
 ta.organizeDataGoog(allData.(stock), allData.SPY, range);
 
-window_size = 12;
+window_size = 54;
 ma.STOCK = tsmovavg(ta.cl.STOCK,'e',window_size,1);
 ma.INDX = tsmovavg(ta.cl.INDX,'e',window_size,1);
 
 % subplot(2,1,1)
 hold on
-candle(ta.hi.STOCK, ta.lo.STOCK, ta.cl.STOCK, ta.op.STOCK, 'blue');
+% candle(ta.hi.STOCK, ta.lo.STOCK, ta.cl.STOCK, ta.op.STOCK, 'blue');
+plot(ta.cl.STOCK,'b')
 plot(ma.STOCK)
 title(strcat(stock, ' Candles'))
 
@@ -35,32 +36,66 @@ title(strcat(stock, ' Candles'))
 
 to = TurtleOptimizer;
 
-x = [0.25 0.5, 12, 30, 0, pi];
+x = [0.25 0.5, window_size, 30, 0, pi];
 
-t = range(12:300);
+modelStop = 500;
 
-opt = @(x)(sum(abs(ma.STOCK(12:300) - to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK)))));
-options = optimoptions('particleswarm','SwarmSize',500,'HybridFcn',@fmincon);
+t = range(window_size:modelStop);
+
+for i = 1:3
+    
+    if i == 1
+        nvars = 3;
+        lb = [0,  30,  -pi];
+        ub = [2,  100,  pi];
+        opt = @(x)(sum(abs(ma.STOCK(window_size:modelStop) - to.genWave(x(1),x(2),x(3),t, mean(ta.cl.STOCK)))));
+        
+    end
+    
+    if i == 2
+        nvars = 3;
+        lb = [0,  100,  -pi];
+        ub = [2,  200,  pi];
+        opt = @(x)(sum(abs(ma.STOCK(window_size:modelStop) - to.genWave(x(1),x(2),x(3),t, mean(ta.cl.STOCK)))));
+        
+    end
+    
+    if i == 3
+        nvars = 6;
+        lb = [0, 0, first*.75,  second*.75,  -pi, -pi];
+        ub = [2, 5, first*1.25, second*1.25,  pi,  pi];
+        opt = @(x)(sum(abs(ma.STOCK(window_size:modelStop) - to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK)))));
+        
+    end
+    
+    
+    options = optimoptions('particleswarm','SwarmSize',500,'HybridFcn',@fmincon);
+    
+    x = particleswarm(opt,nvars,lb,ub, options)
+    
+    if i == 1
+        first = x(2)
+    elseif i == 2
+        second = x(2)
+    end
+    
+end
 
 
-nvars = 6;
-lb = [0, 0, 7,  20, -pi, -pi];
-ub = [2, 5, 20, 40,  pi,  pi];
+foundParams = x
 
-x = particleswarm(opt,nvars,lb,ub, options);
-
-t = 12:length(ta.cl.STOCK);
+t = window_size:length(ta.cl.STOCK);
 y = to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK));
 plot(t,y,'k')
 
 
-Bma = [nan; diff(ma.STOCK(12:end))];
-Bma = [nan(11,1); Bma];
+Bma = [nan; diff(ma.STOCK(window_size:end))];
+Bma = [nan(window_size-1,1); Bma];
 
 By  = [nan; diff(y)];
-By = [nan(11,1); By];
+By = [nan(window_size-1,1); By];
 
-t = 12:300;
+t = window_size:modelStop;
 y = to.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK));
 plot(t,y,'c')
 
@@ -73,9 +108,9 @@ enter.BEAR = 0;
 examine.BULL = 1;
 examine.BEAR = 1;
 
-thres = 0.5;
+thres = 0.0;
 
-for i = 50:length(ta.cl.STOCK)-1
+for i = modelStop+1:length(ta.cl.STOCK)-1
     
     if examine.BULL == 1
         if Bma(i) > max(Bma)*0 && By(i) > max(By)*thres
@@ -89,7 +124,7 @@ for i = 50:length(ta.cl.STOCK)-1
             end
             enter.BULL = 0;
         end
-    end 
+    end
     
     if examine.BEAR == 1
         if Bma(i) < max(Bma)*0 && By(i) < min(By)*thres
@@ -103,13 +138,13 @@ for i = 50:length(ta.cl.STOCK)-1
             end
             enter.BEAR = 0;
         end
-    end 
+    end
     
     
 end
 
-if ~isempty(inMarket.BULL), inMarket.BULL(end,:) = []; end 
-if ~isempty(inMarket.BEAR), inMarket.BEAR(end,:) = []; end 
+if ~isempty(inMarket.BULL), inMarket.BULL(end,:) = []; end
+if ~isempty(inMarket.BEAR), inMarket.BEAR(end,:) = []; end
 
 tz = TurtleAnalyzer;
 
@@ -128,7 +163,7 @@ end
 
 % delete(slider);
 % handles = guihandles(slider);
-% 
+%
 % len = length(ta.cl.INDX);
 % set(handles.axisView, 'Max', len, 'Min', 0);
 % set(handles.axisView, 'SliderStep', [1/len, 10/len]);
@@ -168,18 +203,18 @@ for i = 1:length(inMarket.BEAR)
     hp = patch(x,y, color, 'FaceAlpha', 0.25);
     
 end
-% 
+%
 % while(true)
-%     
+%
 %     axisView = get(handles.axisView, 'Value');
 %     axisLen  = get(handles.axisLen, 'Value');
 %     xlim(gca, [0+axisView, axisLen+axisView]);
 %     yLimits = ylim(gca);
 %     yLo = yLimits(1);
 %     yHi = yLimits(2);
-%     
+%
 %     pause(10/100);
-%     
+%
 % end
 
 

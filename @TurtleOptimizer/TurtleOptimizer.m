@@ -3,6 +3,8 @@ classdef TurtleOptimizer < handle
     
     properties
         
+        tz = TurtleAnalyzer;
+        
     end
     
     methods
@@ -10,6 +12,15 @@ classdef TurtleOptimizer < handle
         function x = solve(obj, opt,nvars,lb,ub)
             
             x = particleswarm(opt,nvars,lb,ub);
+            
+        end
+        
+        function opt = loopClosure(obj, ma, t, useDiff)
+            
+            
+            y = obj.genWave(x(1:2),x(3:4),x(5:6),t, mean(ta.cl.STOCK));
+
+%             opt = @(x)(sum(abs(ma.STOCK(12:300) 
             
         end
         
@@ -36,6 +47,69 @@ classdef TurtleOptimizer < handle
            
             y = y';
             
+        end
+        
+        
+        function e = lcv_WhiteSpace(obj, ta, candleStart, candleEnd, x)
+            
+            roi = obj.lc_WhiteSpace(ta, candleStart, candleEnd, x);
+            e = 10 - (sum(roi));
+            if e < 0
+                e = 0;
+            end
+            
+            
+        end 
+        
+        function [roi, inMarket] = lc_WhiteSpace(obj, ta, candleStart, candleEnd, x)
+             
+            num = floor(x(1));
+            whiteSpace = x(2);
+            window_size = floor(x(3));
+            
+            ma.STOCK = tsmovavg(ta.cl.STOCK,'e',window_size,1);
+            
+            enter.BULL = 0;
+            inMarket.BULL = [];
+            
+            for i = candleStart:candleEnd
+                
+                if enter.BULL...
+                        || (ta.cl.STOCK(i-1) > ma.STOCK(i-1)...
+                        && ta.lo.STOCK(i) <= ma.STOCK(i)...
+                        && ta.cl.STOCK(i) > ma.STOCK(i)...
+                        && (mean(ta.cl.STOCK(i-num:i)) - ma.STOCK(i)) / ma.STOCK(i) * 100 > whiteSpace)
+                    
+                    if enter.BULL == 0
+                        inMarket.BULL = [inMarket.BULL; i, nan];
+                    end
+                    
+                    enter.BULL = 1;
+                    
+                end
+                
+                if enter.BULL && inMarket.BULL(end,1) ~= i...
+                        && ta.cl.STOCK(i) < ta.op.STOCK(i)
+                    
+                    inMarket.BULL(end,2) = i;
+                    
+                    enter.BULL = 0;
+                end
+                
+            end
+            
+            if isempty(inMarket.BULL)
+                roi = -10;
+            else
+                
+                if isnan(inMarket.BULL(end,2));
+                    inMarket.BULL(end,:) = [];
+                end 
+                
+                first = ta.cl.STOCK(inMarket.BULL(:,1));
+                second = ta.cl.STOCK(inMarket.BULL(:,2));
+                roi = obj.tz.percentDifference(first, second);
+            end
         end
         
     end
