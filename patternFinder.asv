@@ -5,8 +5,8 @@ ta = TurtleAuto;
 tz = TurtleAnalyzer;
 to = TurtleOptimizer;
 
-stockNum = [30];
-lenOfData = '25d';
+stockNum = [3];
+lenOfData = '35d';
 durationOfCandle = '600';
 
 
@@ -35,63 +35,33 @@ title(strcat(stock, ' Candles'))
 % title('S&P500 Candles')
 
 candleStart = 50;
-candleEnd   = 600;
+candleEnd   = 1200;
 
-% opt = @(x)(to.lcv_WhiteSpace(ta, candleStart, candleEnd, x));
-% nvars = 3;
-% lb = [0,  0,  7];
-% ub = [10, 5, 78];
-% 
-% options = optimoptions('particleswarm','SwarmSize',200,'HybridFcn',@fmincon);
-% x = particleswarm(opt,nvars,lb,ub, options);
+opt = @(x)(to.lcv_WhiteSpace(ta, candleStart, candleEnd, x));
+nvars = 3;
+lb = [0,  0,  7];
+ub = [10, 5, 78];
 
-x = 
-to.lc_WhiteSpace(ta, candleStart, candleEnd, x)
 
-% num = floor(x(1))
-% whiteSpace = x(2)
-% window_size = floor(x(3))
-% ma.STOCK = tsmovavg(ta.cl.STOCK,'e',window_size,1);
-% 
-% 
-% enter.BULL = 0;
-% inMarket.BULL = [];
-% for i = 601:length(ta.cl.STOCK)-1
-%     
-%     if enter.BULL...
-%             || (ta.cl.STOCK(i-1) > ma.STOCK(i-1)...
-%             && ta.lo.STOCK(i) <= ma.STOCK(i)...
-%             && ta.cl.STOCK(i) > ma.STOCK(i)...
-%             && (mean(ta.cl.STOCK(i-num:i)) - ma.STOCK(i)) / ma.STOCK(i) * 100 > whiteSpace)
-%         
-%         if enter.BULL == 0
-%             inMarket.BULL = [inMarket.BULL; i, nan];
-%         end
-%         
-%         enter.BULL = 1;
-%         
-%     end
-%     
-%     if enter.BULL && inMarket.BULL(end,1) ~= i...
-%             && ta.cl.STOCK(i) < ta.op.STOCK(i)
-%         
-%             inMarket.BULL(end,2) = i;
-%         
-%         enter.BULL = 0;
-%     end
-%     
-% end
-% 
-% plot(ma.STOCK)
-% plot(inMarket.BULL(:,1), ta.cl.STOCK(inMarket.BULL(:,1)), 'go');
-% plot(inMarket.BULL(:,2), ta.cl.STOCK(inMarket.BULL(:,2)), 'ro');
-% 
-% first = ta.cl.STOCK(inMarket.BULL(:,1));
-% second = ta.cl.STOCK(inMarket.BULL(:,2));
-% roi = tz.percentDifference(first, second);
-% 
-% disp(sum(roi))
-% 
-% 
-% 
-% 
+
+options = optimoptions('particleswarm','SwarmSize',200,'HybridFcn',@fmincon);
+x = particleswarm(opt,nvars,lb,ub, options);
+
+disp(x)
+
+[roi, inMarket] = to.lc_WhiteSpace(ta, candleStart, candleEnd, x);
+disp([sum(roi), size(inMarket.BULL,1)])
+
+[roi, inMarket] = to.lc_WhiteSpace(ta, candleEnd+1, length(ta.cl.STOCK), x);
+disp([sum(roi), size(inMarket.BULL,1)])
+disp([mean(roi), std(roi)]);
+
+
+window_size = floor(x(3))
+ma.STOCK = tsmovavg(ta.cl.STOCK,'e',window_size,1);
+
+plot(ma.STOCK)
+plot(inMarket.BULL(:,1), ta.cl.STOCK(inMarket.BULL(:,1)), 'go');
+plot(inMarket.BULL(:,2), ta.cl.STOCK(inMarket.BULL(:,2)), 'ro');
+
+

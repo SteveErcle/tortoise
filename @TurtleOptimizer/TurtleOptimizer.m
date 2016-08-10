@@ -53,11 +53,18 @@ classdef TurtleOptimizer < handle
         function e = lcv_WhiteSpace(obj, ta, candleStart, candleEnd, x)
             
             roi = obj.lc_WhiteSpace(ta, candleStart, candleEnd, x);
-            e = 10 - (sum(roi));
+            e = 30 - (sum(roi));
+%             e = 2 - (mean(roi));
+            
+%             base = 1;
+%             n_trades = length(roi);
+            
             if e < 0
                 e = 0;
             end
             
+            % Optimize number of trades and the mean percent return
+            % Optimize the parameters continuously
             
         end 
         

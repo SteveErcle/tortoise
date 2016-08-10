@@ -5,7 +5,7 @@ ta = TurtleAuto;
 tz = TurtleAnalyzer;
 to = TurtleOptimizer;
 
-stockNum = [33];
+stockNum = [11];
 lenOfData = '35d';
 durationOfCandle = '600';
 
@@ -42,7 +42,9 @@ nvars = 3;
 lb = [0,  0,  7];
 ub = [10, 5, 78];
 
-options = optimoptions('particleswarm','SwarmSize',200,'HybridFcn',@fmincon);
+
+
+options = optimoptions('particleswarm','SwarmSize',20,'HybridFcn',@fmincon);
 x = particleswarm(opt,nvars,lb,ub, options);
 
 disp(x)
