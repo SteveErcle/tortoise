@@ -53,18 +53,14 @@ classdef TurtleOptimizer < handle
         function e = lcv_WhiteSpace(obj, ta, candleStart, candleEnd, x)
             
             roi = obj.lc_WhiteSpace(ta, candleStart, candleEnd, x);
-            e = 30 - (sum(roi));
-%             e = 2 - (mean(roi));
             
-%             base = 1;
-%             n_trades = length(roi);
+            x = sum(roi);
             
-            if e < 0
-                e = 0;
-            end
+            y = 1/x; y(x<=1) = 1; y(x<=-1) = -x(find(x<=-1));
             
-            % Optimize number of trades and the mean percent return
-            % Optimize the parameters continuously
+            y = y + length(roi)/200;
+            
+            e = y;
             
         end 
         
@@ -85,6 +81,8 @@ classdef TurtleOptimizer < handle
                         || (ta.cl.STOCK(i-1) > ma.STOCK(i-1)...
                         && ta.lo.STOCK(i) <= ma.STOCK(i)...
                         && ta.cl.STOCK(i) > ma.STOCK(i)...
+                        && ~strcmp(datestr(ta.da.STOCK(i),15), '16:00')...
+                        && ~strcmp(datestr(ta.da.STOCK(i),15), '15:50')...
                         && (mean(ta.cl.STOCK(i-num:i)) - ma.STOCK(i)) / ma.STOCK(i) * 100 > whiteSpace)
                     
                     if enter.BULL == 0
@@ -95,8 +93,9 @@ classdef TurtleOptimizer < handle
                     
                 end
                 
-                if enter.BULL && inMarket.BULL(end,1) ~= i...
-                        && ta.cl.STOCK(i) < ta.op.STOCK(i)
+                if enter.BULL...
+                    && ((inMarket.BULL(end,1) ~= i && ta.cl.STOCK(i) < ta.op.STOCK(i))...
+                        || (strcmp(datestr(ta.da.STOCK(i),15), '16:00') || strcmp(datestr(ta.da.STOCK(i),15), '15:50')))
                     
                     inMarket.BULL(end,2) = i;
                     
@@ -106,7 +105,7 @@ classdef TurtleOptimizer < handle
             end
             
             if isempty(inMarket.BULL)
-                roi = -10;
+                roi = 0;
             else
                 
                 if isnan(inMarket.BULL(end,2));
