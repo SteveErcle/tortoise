@@ -58,7 +58,7 @@ classdef TurtleOptimizer < handle
             
             y = 1/x; y(x<=1) = 1; y(x<=-1) = -x(find(x<=-1));
             
-            y = y + length(roi)/200;
+%             y = y + length(roi)/200;
             
             e = y;
             
@@ -66,9 +66,10 @@ classdef TurtleOptimizer < handle
         
         function [roi, inMarket] = lc_WhiteSpace(obj, ta, candleStart, candleEnd, x)
              
-            num = floor(x(1));
-            whiteSpace = x(2);
-            window_size = floor(x(3));
+%             num = floor(x(1));
+%             whiteSpace = x(2);
+            thres =       x(1);
+            window_size = floor(x(2));
             
             ma.STOCK = tsmovavg(ta.cl.STOCK,'e',window_size,1);
             
@@ -78,12 +79,13 @@ classdef TurtleOptimizer < handle
             for i = candleStart:candleEnd
                 
                 if enter.BULL...
-                        || (ta.cl.STOCK(i-1) > ma.STOCK(i-1)...
-                        && ta.lo.STOCK(i) <= ma.STOCK(i)...
-                        && ta.cl.STOCK(i) > ma.STOCK(i)...
-                        && ~strcmp(datestr(ta.da.STOCK(i),15), '16:00')...
-                        && ~strcmp(datestr(ta.da.STOCK(i),15), '15:50')...
-                        && (mean(ta.cl.STOCK(i-num:i)) - ma.STOCK(i)) / ma.STOCK(i) * 100 > whiteSpace)
+                        || obj.tz.percentDifference(ma.STOCK(i), ta.cl.STOCK(i)) >= thres
+%                         (ta.cl.STOCK(i-1) > ma.STOCK(i-1)...
+%                         && ta.lo.STOCK(i) <= ma.STOCK(i)...
+%                         && ta.cl.STOCK(i) > ma.STOCK(i)...
+%                         && ~strcmp(datestr(ta.da.STOCK(i),15), '16:00')...
+%                         && ~strcmp(datestr(ta.da.STOCK(i),15), '15:50')...
+%                         && (mean(ta.cl.STOCK(i-num:i)) - ma.STOCK(i)) / ma.STOCK(i) * 100 > whiteSpace)
                     
                     if enter.BULL == 0
                         inMarket.BULL = [inMarket.BULL; i, nan];
@@ -94,8 +96,9 @@ classdef TurtleOptimizer < handle
                 end
                 
                 if enter.BULL...
-                    && ((inMarket.BULL(end,1) ~= i && ta.cl.STOCK(i) < ta.op.STOCK(i))...
-                        || (strcmp(datestr(ta.da.STOCK(i),15), '16:00') || strcmp(datestr(ta.da.STOCK(i),15), '15:50')))
+                    && obj.tz.percentDifference(ma.STOCK(i), ta.cl.STOCK(i)) < thres
+                        %((inMarket.BULL(end,1) ~= i && ta.cl.STOCK(i) < ta.op.STOCK(i))...
+                        %|| (strcmp(datestr(ta.da.STOCK(i),15), '16:00') || strcmp(datestr(ta.da.STOCK(i),15), '15:50')))
                     
                     inMarket.BULL(end,2) = i;
                     
@@ -114,7 +117,7 @@ classdef TurtleOptimizer < handle
                 
                 first = ta.cl.STOCK(inMarket.BULL(:,1));
                 second = ta.cl.STOCK(inMarket.BULL(:,2));
-                roi = obj.tz.percentDifference(first, second);
+                roi = -obj.tz.percentDifference(first, second);
             end
         end
         
